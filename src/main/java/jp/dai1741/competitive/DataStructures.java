@@ -691,7 +691,7 @@ public class DataStructures {
     }
 
     /**
-     * O(n log^2 n)。空文字を無視していることに注意。
+     * O(n log^2 n)。SAの先頭に入るべき空文字を無視していることに注意。
      */
     static int[] buildSuffixArray(String s) {
         int n = s.length();  // 空文字を含むならここで+1
@@ -746,7 +746,7 @@ public class DataStructures {
     }
 
     /**
-     * 接尾辞配列とそのLCPをO(1)で求めるアレを同時に作る。O(n log^2 n)
+     * 接尾辞配列とそのLCPをO(1)で求めるRMQを同時に作る。O(n log^2 n)
      */
     static class SuffixArray {
         SuffixArrayEntry[] sa;
@@ -754,9 +754,9 @@ public class DataStructures {
 
         public SuffixArray(String s) {
             int n = s.length();
-            int logN = 32 - Integer.numberOfTrailingZeros(n - 1);
+            int logN = 32 - Integer.numberOfLeadingZeros(n - 1);
             sa = new SuffixArrayEntry[n];
-            int[][] pos = new int[logN][n];  // pos[t][i]: s.substr(i,i+2**t)の位置（ランク）
+            int[][] pos = new int[logN + 1][n];  // pos[t][i]: s.substr(i,i+2**t)の位置（ランク）
             for (int i = 0; i < n; i++) {
                 sa[i] = new SuffixArrayEntry();
                 pos[0][i] = s.charAt(i);
@@ -764,8 +764,8 @@ public class DataStructures {
             for (int t = 1, step = 1; step < n; t++, step *= 2) {
                 for (int i = 0; i < n; i++) {
                     sa[i].idx = i;
-                    sa[i].prevPos = pos[t][i];  // 前回の位置
-                    sa[i].pos = i + step < n ? pos[t][i + step] : -1;  // 前回からstep文字だけ進んだ時の位置
+                    sa[i].prevPos = pos[t - 1][i];  // 前回の位置
+                    sa[i].pos = i + step < n ? pos[t - 1][i + step] : -1;  // 前回からstep文字だけ進んだ時の位置
                 }
                 Arrays.sort(sa);
                 for (int i = 0; i < n; i++) {
@@ -774,10 +774,11 @@ public class DataStructures {
                             : i;
                 }
             }
-            // 高さ配列を作る
+            // 高さ配列を作る。
+            // 任意の二点間のLCPの計算にO(logn)かけていいならこれ以下の作業は不要
             int[] lcp = new int[n];
             for (int i = 0; i < n - 1; i++) {
-                int x = i, y = i + 1;
+                int x = sa[i].idx, y = sa[i + 1].idx;
                 for (int k = logN - 1; k >= 0 && x < n && y < n; k--) {
                     if (pos[k][x] == pos[k][y]) {
                         x += 1 << k;
@@ -787,8 +788,8 @@ public class DataStructures {
                 }
             }
             // 高さ配列を元にSparse Tableを作る
-            st = pos;     // 再利用!!!
-            st[0] = lcp;  // よゆうよ!!!
+            st = pos;  // メモリ効率のため再利用
+            st[0] = lcp;
             for (int i = 1; i < logN; i++) {
                 for (int j = 0; j < n - (1 << i) + 1; j++) {
                     st[i][j] = Math.min(st[i - 1][j], st[i - 1][j + (1 << i - 1)]);

@@ -339,8 +339,6 @@ public class DataStructuresTest {
 
     @Test
     public void testSuffixArray() {
-        System.out.println(Arrays.toString(buildSuffixArray("abcde")));
-        System.out.println(Arrays.toString(buildSuffixArray("abcde")));
         assertArrayEquals(new int[] { 0, 1, 2, 3, 4 }, buildSuffixArray("abcde"));
         assertArrayEquals(new int[] { 10, 7, 0, 3, 5, 8, 1, 4, 6, 9, 2 },
                 buildSuffixArray("abracadabra"));
@@ -348,19 +346,43 @@ public class DataStructuresTest {
 
         int[] saDNA = buildSuffixArray(aDNA);
         HashSet<Integer> set = new HashSet<Integer>(aDNA.length() * 2);
-        
+
         for (int i = 1; i < saDNA.length; i++) {
-            set.add(saDNA[i-1]);
+            set.add(saDNA[i - 1]);
             set.add(saDNA[i]);
             assertTrue(i + "-th data differ", aDNA.substring(saDNA[i - 1]).compareTo(
                     aDNA.substring(saDNA[i])) < 0);
         }
         assertEquals(aDNA.length(), set.size());
-        
+
         assertEquals(250, findWithSuffixArrayNaive("AG", aDNA, saDNA));
         assertEquals(18, findWithSuffixArrayNaive("ACTA", aDNA, saDNA));
         assertEquals(207, findWithSuffixArrayNaive("CTACCAGGATAGAA", aDNA, saDNA));
         assertTrue(findWithSuffixArrayNaive("AAAAAAGAGAGTA", aDNA, saDNA) < 0);
-        assertEquals(370, findWithSuffixArrayNaive("non proident", aPoem, buildSuffixArray(aPoem)));
+
+        SuffixArray saPoemSt = new SuffixArray(aPoem);
+        int[] saPoem = new int[saPoemSt.sa.length];
+        for (int i = 0; i < saPoem.length; i++) {
+            saPoem[i] = saPoemSt.sa[i].idx;
+            if (i > 0) {
+                assertEquals(computeLCP(aPoem.substring(saPoem[i - 1]), aPoem
+                        .substring(saPoem[i])), saPoemSt.lcp(i - 1, i));
+            }
+        }
+        assertEquals(0, saPoemSt.lcp(0, 100));
+        assertEquals(2, saPoemSt.lcp(380, 395));
+        assertEquals(1, saPoemSt.lcp(380, 396));
+        assertEquals(0, saPoemSt.lcp(379, 395));
+        assertArrayEquals(buildSuffixArray(aPoem), saPoem);
+
+        assertEquals(370, findWithSuffixArrayNaive("non proident", aPoem, saPoem));
+    }
+
+    private int computeLCP(String s1, String s2) {
+        int lcp = 0;
+        while (lcp < Math.min(s1.length(), s2.length())
+                && s1.charAt(lcp) == s2.charAt(lcp))
+            lcp++;
+        return lcp;
     }
 }
