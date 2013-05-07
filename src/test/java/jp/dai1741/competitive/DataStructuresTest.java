@@ -10,10 +10,11 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 import static jp.dai1741.competitive.DataStructures.*;
+import static java.lang.Integer.MAX_VALUE;
 
 public class DataStructuresTest {
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testBIT() {
         BinaryIndexedTree bit = new BinaryIndexedTree(15);
         bit.add(3, 5);
@@ -24,17 +25,13 @@ public class DataStructuresTest {
         assertEquals(6, bit.sum(7));
         assertEquals(21, bit.sum(15));
         assertEquals(2, bit.sum(1));
-        try {
-            bit.sum(0);
-            fail();
-        }
-        catch (RuntimeException e) {
-        }
+
+        bit.sum(0);
     }
 
-    @Test
-    public void testDualBIT() {
-        DualBinaryIndexedTree bit = new DualBinaryIndexedTree(15);
+    @Test(expected = IllegalArgumentException.class)
+    public void testRangeAddableBIT() {
+        RangeAddableBinaryIndexedTree bit = new RangeAddableBinaryIndexedTree(15);
         bit.add(3, 5);
         bit.add(1, 2);
         bit.addRange(10, 15, 3);
@@ -44,15 +41,11 @@ public class DataStructuresTest {
         assertEquals(21, bit.sum(7));
         assertEquals(34, bit.sum(15));
         assertEquals(12, bit.sum(1));
-        try {
-            bit.addRange(0, 16, 1);
-            fail();
-        }
-        catch (RuntimeException e) {
-        }
+
+        bit.addRange(0, 16, 1);
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testBIT2D() {
         BinaryIndexedTree2D bit2d = new BinaryIndexedTree2D(10, 10);
         bit2d.add(3, 1, 5);
@@ -60,22 +53,13 @@ public class DataStructuresTest {
         bit2d.add(7, 5, 13);
         bit2d.add(5, 10, -1);
         bit2d.add(9, 8, 2);
-        for (int i = 1; i <= 10; i++) {
-            for (int j = 1; j <= 10; j++) {
-                System.out.print(bit2d.sum(j, i) + " ");
-            }
-            System.out.println();
-        }
+
         assertEquals(6, bit2d.sum(5, 10));
         assertEquals(21, bit2d.sum(10, 10));
         assertEquals(2, bit2d.sum(2, 4));
         assertEquals(5, bit2d.sum(7, 1));
-        try {
-            bit2d.sum(0, 1);
-            fail();
-        }
-        catch (RuntimeException e) {
-        }
+
+        bit2d.sum(0, 1);
     }
 
     @Test
@@ -105,8 +89,8 @@ public class DataStructuresTest {
         assertEquals(1000, tree.minRange(400, 1000000));
         assertEquals(10000, tree.minRange(700, 50000));
         assertEquals(1000, tree.minRange(50000, 50001));
-        assertEquals(Integer.MAX_VALUE, tree.minRange(70000, 100000));
-        assertEquals(Integer.MAX_VALUE, tree.minRange(3, 9));
+        assertEquals(MAX_VALUE, tree.minRange(70000, 100000));
+        assertEquals(MAX_VALUE, tree.minRange(3, 9));
 
         tree.set(5000, 999);
         assertEquals(999, tree.minRange(700, 50000));
@@ -128,10 +112,10 @@ public class DataStructuresTest {
         assertEquals(1000, tree.minRange(400, 100000));
         assertEquals(10000, tree.minRange(70, 5000));
         assertEquals(1000, tree.minRange(5000, 5001));
-        assertEquals(Integer.MAX_VALUE, tree.minRange(4999, 5000));
-        assertEquals(Integer.MAX_VALUE, tree.minRange(5001, 5002));
-        assertEquals(Integer.MAX_VALUE, tree.minRange(700, 1000));
-        assertEquals(Integer.MAX_VALUE, tree.minRange(3, 9));
+        assertEquals(MAX_VALUE, tree.minRange(4999, 5000));
+        assertEquals(MAX_VALUE, tree.minRange(5001, 5002));
+        assertEquals(MAX_VALUE, tree.minRange(700, 1000));
+        assertEquals(MAX_VALUE, tree.minRange(3, 9));
 
         tree.set(500, 999);
         assertEquals(999, tree.minRange(70, 5000));
@@ -150,7 +134,7 @@ public class DataStructuresTest {
     @Test
     public void testRMQSparseTable() {
         int[] data = new int[100000];
-        Arrays.fill(data, Integer.MAX_VALUE);
+        Arrays.fill(data, MAX_VALUE);
         data[5555] = 1000;
         data[555] = 10000;
         data[777] = -77777;
@@ -161,9 +145,9 @@ public class DataStructuresTest {
         assertEquals(-77777, st.minRange(400, 100000));
         assertEquals(-77777, st.minRange(70, 5000));
         assertEquals(5000, st.minRange(5000, 5001));
-        assertEquals(Integer.MAX_VALUE, st.minRange(4999, 5000));
-        assertEquals(Integer.MAX_VALUE, st.minRange(5001, 5002));
-        assertEquals(Integer.MAX_VALUE, st.minRange(3, 9));
+        assertEquals(MAX_VALUE, st.minRange(4999, 5000));
+        assertEquals(MAX_VALUE, st.minRange(5001, 5002));
+        assertEquals(MAX_VALUE, st.minRange(3, 9));
         assertEquals(-77777, st.minRange(700, 1000));
         assertEquals(1000, st.minRange(778, 9563));
 
@@ -332,7 +316,6 @@ public class DataStructuresTest {
                 sb.append((char) (i % 90 + 32));
             pats[i] = sb.toString();
             if (sbAll.length() < 100000) sbAll.append(pats[i]);
-            if (i % 100 == 0) System.out.println(i + "," + sbAll.length());
         }
         assertEquals(90, ahoCorasickBuildAndSearch(pats, sbAll.toString()));
     }

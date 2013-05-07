@@ -9,6 +9,9 @@ import java.util.Queue;
 public class DataStructures {
 
 
+    /**
+     * @see プログラミングコンテストチャレンジブック 第1版 p.159
+     */
     public static class BinaryIndexedTree {
         final int[] data;
         final int n;
@@ -41,12 +44,14 @@ public class DataStructures {
         }
     }
 
-    public static class DualBinaryIndexedTree {
-        final BinaryIndexedTree bit0;
-        final BinaryIndexedTree bit1;
+    /**
+     * @see プログラミングコンテストチャレンジブック 第1版 p.165
+     */
+    public static class RangeAddableBinaryIndexedTree {
+        final BinaryIndexedTree bit0, bit1;
         final int n;
 
-        public DualBinaryIndexedTree(int n) {
+        public RangeAddableBinaryIndexedTree(int n) {
             this.n = n;
             bit0 = new BinaryIndexedTree(n);
             bit1 = new BinaryIndexedTree(n);
@@ -108,7 +113,9 @@ public class DataStructures {
     }
 
     /**
-     * ならしO(log n)
+     * ランクを処理していないのでならしO(log n)
+     * 
+     * @see プログラミングコンテストチャレンジブック 第1版 p.81
      */
     public static class UnionFind {
         final int[] data;
@@ -134,6 +141,9 @@ public class DataStructures {
         }
     }
 
+    /**
+     * @see http://www.slideshare.net/iwiwi/2-12188757
+     */
     static class LazyRMQSegmentTreeNode {
 
         int l;
@@ -185,11 +195,11 @@ public class DataStructures {
     }
 
     /**
-     * @see プログラミングコンテストチャレンジブック p.155
+     * @see プログラミングコンテストチャレンジブック 第1版 p.155
      */
     static class ArrayRMQSegmentTree {
         final int n;
-        final int[] tree;  // implicit binary tree
+        final int[] tree;
 
 
         ArrayRMQSegmentTree(int size) {
@@ -230,7 +240,6 @@ public class DataStructures {
 
     /**
      * @see http://community.topcoder.com/tc?module=Static&d1=tutorials&d2=lowestCommonAncestor#Sparse_Table_(ST)_algorithm
-     * 
      */
     static class RMQSparseTable {
         final int[][] st;
@@ -286,11 +295,166 @@ public class DataStructures {
     }
 
     /**
-     * k番目
+     * accepted in: http://poj.org/problem?id=3580
+     * 
+     * @see http://www.slideshare.net/iwiwi/2-12188757
+     */
+    static class LazyRMQTreap {
+
+        static class NodePair {
+            LazyRMQTreap l, r;
+        }
+
+        LazyRMQTreap l, r;
+        int size = 1;
+        int val;
+        boolean rev;
+        double p;
+        int min;
+        int sum;
+        int addingVal;
+
+        public LazyRMQTreap(int val) {
+            this.val = val;
+            p = Math.random();
+            update();
+        }
+
+        /** 頂点情報を更新 */
+        private LazyRMQTreap update() {
+            assert addingVal == 0;
+            size = nodeSize(l) + nodeSize(r) + 1;
+            min = Math.min(l == null ? Integer.MAX_VALUE : l.min + l.addingVal, r == null
+                    ? Integer.MAX_VALUE
+                    : r.min + r.addingVal);
+            min = Math.min(min, val);
+            sum = val + (l == null ? 0 : l.sum + l.addingVal * l.size)
+                    + (r == null ? 0 : r.sum + r.addingVal * r.size);
+            return this;
+        }
+
+        private static int nodeSize(LazyRMQTreap node) {
+            return node != null ? node.size : 0;
+        }
+
+        /** 範囲処理を遅延評価する */
+        private void processLazy() {
+            if (rev) {
+                LazyRMQTreap temp = l;
+                l = r;
+                r = temp;
+                if (l != null) l.rev ^= true;
+                if (r != null) r.rev ^= true;
+                rev = false;
+            }
+            if (addingVal > 0) {
+                if (l != null) l.addingVal += addingVal;
+                if (r != null) r.addingVal += addingVal;
+                val += addingVal;
+                addingVal = 0;
+                update();
+            }
+        }
+
+        static LazyRMQTreap merge(LazyRMQTreap l, LazyRMQTreap r) {
+            if (l == null || r == null) return l != null ? l : r;
+            if (l.p > r.p) {
+                l.processLazy();
+                l.r = merge(l.r, r);
+                return l.update();
+            }
+            else {
+                r.processLazy();
+                r.l = merge(l, r.l);
+                return r.update();
+            }
+        }
+
+        static NodePair split(LazyRMQTreap node, int k) {
+            NodePair ret = new NodePair();
+            if (node == null) return ret;
+            node.processLazy();
+
+            if (k <= nodeSize(node.l)) {
+                ret = split(node.l, k);
+                node.l = ret.r;
+                ret.r = node.update();
+            }
+            else {
+                ret = split(node.r, k - nodeSize(node.l) - 1);
+                node.r = ret.l;
+                ret.l = node.update();
+            }
+            return ret;
+        }
+
+        int get(int i) {
+            processLazy();
+            if (i < nodeSize(l)) return l.get(i);
+            if (i == nodeSize(l)) return val;
+            return r.get(i - nodeSize(l) - 1);
+        }
+
+        LazyRMQTreap insert(int i, int val) {
+            NodePair p = split(this, i);
+            return merge(p.l, merge(new LazyRMQTreap(val), p.r));
+        }
+
+        LazyRMQTreap delete(int i) {
+            NodePair p = split(this, i);
+            return merge(p.l, split(p.r, 1).r);
+        }
+
+        LazyRMQTreap reverseRange(int l, int r) {
+            NodePair ab = split(this, l);
+            NodePair bc = split(ab.r, r - l);
+            bc.l.rev ^= true;
+            return merge(ab.l, merge(bc.l, bc.r));
+        }
+
+        LazyRMQTreap rotateLeft(int i) {
+            NodePair p = split(this, i);
+            return merge(p.r, p.l);
+        }
+
+        LazyRMQTreap rotateLeftRange(int l, int r, int i) {
+            NodePair ab = split(this, l);
+            NodePair bc = split(ab.r, r - l);
+            bc.l = bc.l.rotateLeft(i);
+            return merge(ab.l, merge(bc.l, bc.r));
+        }
+
+        int minRange(int l, int r) {
+            // 怠惰にsplitしているが定数倍で遅い
+            NodePair ab = split(this, l);
+            NodePair bc = split(ab.r, r - l);
+            int ret = bc.l.min;
+            merge(ab.l, merge(bc.l, bc.r)); // 元の木を復元するのでrootは処理前と変わらない
+            return ret;
+        }
+
+        int sumRange(int l, int r) {
+            NodePair ab = split(this, l);
+            NodePair bc = split(ab.r, r - l);
+            int ret = bc.l.sum;
+            merge(ab.l, merge(bc.l, bc.r));
+            return ret;
+        }
+
+        void addRange(int l, int r, int val) {
+            NodePair ab = split(this, l);
+            NodePair bc = split(ab.r, r - l);
+            bc.l.addingVal += val;
+            merge(ab.l, merge(bc.l, bc.r));
+        }
+    }
+
+    /**
+     * 特定の要素が木の何番目にあるのかがO(logn)でわかるTreap
      */
     static class ReversibleBidirectionalTreap {
 
-        Node[] nodes;
+        Node[] nodes;  // 初期順序を保持しておくための配列
         Node root;
 
         static class NodePair {
@@ -410,163 +574,6 @@ public class DataStructures {
 
 
     /**
-     * accepted in: http://poj.org/problem?id=3580
-     * 
-     * @see http://www.slideshare.net/iwiwi/2-12188757
-     */
-    static class LazyRMQTreap {
-
-        static class NodePair {
-            LazyRMQTreap l;
-            LazyRMQTreap r;
-        }
-
-        LazyRMQTreap l;
-        LazyRMQTreap r;
-        int size = 1;
-        int val;
-        boolean rev;
-        double p;
-        int min;
-        int sum;
-        int addingVal;
-
-        public LazyRMQTreap(int val) {
-            this.val = val;
-            p = Math.random();
-            update();
-        }
-
-        private LazyRMQTreap update() {
-            assert addingVal == 0;
-            size = nodeSize(l) + nodeSize(r) + 1;
-            min = Math.min(l == null ? Integer.MAX_VALUE : l.min + l.addingVal, r == null
-                    ? Integer.MAX_VALUE
-                    : r.min + r.addingVal);
-            min = Math.min(min, val);
-            sum = val + (l == null ? 0 : l.sum + l.addingVal * l.size)
-                    + (r == null ? 0 : r.sum + r.addingVal * r.size);
-            return this;
-        }
-
-        private static int nodeSize(LazyRMQTreap node) {
-            return node != null ? node.size : 0;
-        }
-
-        private void processLazy() {
-            if (rev) {
-                LazyRMQTreap temp = l;
-                l = r;
-                r = temp;
-                if (l != null) l.rev ^= true;
-                if (r != null) r.rev ^= true;
-                rev = false;
-            }
-            if (addingVal > 0) {
-                if (l != null) l.addingVal += addingVal;
-                if (r != null) r.addingVal += addingVal;
-                val += addingVal;
-                addingVal = 0;
-                update();
-            }
-        }
-
-        static LazyRMQTreap merge(LazyRMQTreap l, LazyRMQTreap r) {
-            if (l == null || r == null) return l != null ? l : r;
-            if (l.p > r.p) {
-                l.processLazy();
-                l.r = merge(l.r, r);
-                return l.update();
-            }
-            else {
-                r.processLazy();
-                r.l = merge(l, r.l);
-                return r.update();
-            }
-        }
-
-        static NodePair split(LazyRMQTreap node, int k) {
-            NodePair ret = new NodePair();
-            if (node == null) return ret;
-            node.processLazy();
-
-            if (k <= nodeSize(node.l)) {
-                ret = split(node.l, k);
-                node.l = ret.r;
-                ret.r = node.update();
-            }
-            else {
-                ret = split(node.r, k - nodeSize(node.l) - 1);
-                node.r = ret.l;
-                ret.l = node.update();
-            }
-            return ret;
-        }
-
-        int get(int i) {
-            processLazy();
-            if (i < nodeSize(l)) return l.get(i);
-            if (i == nodeSize(l)) return val;
-            return r.get(i - nodeSize(l) - 1);
-        }
-
-        LazyRMQTreap insert(int i, int val) {
-            NodePair p = split(this, i);
-            return merge(p.l, merge(new LazyRMQTreap(val), p.r));
-        }
-
-        LazyRMQTreap delete(int i) {
-            NodePair p = split(this, i);
-            return merge(p.l, split(p.r, 1).r);
-        }
-
-        LazyRMQTreap reverseRange(int l, int r) {
-            NodePair ab = split(this, l);
-            NodePair bc = split(ab.r, r - l);
-            bc.l.rev ^= true;
-            return merge(ab.l, merge(bc.l, bc.r));
-        }
-
-        LazyRMQTreap rotateLeft(int i) {
-            NodePair p = split(this, i);
-            return merge(p.r, p.l);
-        }
-
-        LazyRMQTreap rotateLeftRange(int l, int r, int i) {
-            NodePair ab = split(this, l);
-            NodePair bc = split(ab.r, r - l);
-            bc.l = bc.l.rotateLeft(i);
-            return merge(ab.l, merge(bc.l, bc.r));
-        }
-
-        int minRange(int l, int r) {
-            // 定数倍遅いけどsplitしてしまえ
-            NodePair ab = split(this, l);
-            NodePair bc = split(ab.r, r - l);
-            int ret = bc.l.min;
-            merge(ab.l, merge(bc.l, bc.r)); // 同じ木を作るわけだし順序変わらん
-            return ret;
-        }
-
-        int sumRange(int l, int r) {
-            // 定数倍遅いけどsplitしてしまえ
-            NodePair ab = split(this, l);
-            NodePair bc = split(ab.r, r - l);
-            int ret = bc.l.sum;
-            merge(ab.l, merge(bc.l, bc.r)); // 同じ木を作るわけだし順序変わらん
-            return ret;
-        }
-
-        void addRange(int l, int r, int val) {
-            // 定数倍遅いけどsplitしてしまえ
-            NodePair ab = split(this, l);
-            NodePair bc = split(ab.r, r - l);
-            bc.l.addingVal += val;
-            merge(ab.l, merge(bc.l, bc.r)); // 同じ木を作るわけだし順序変わらん
-        }
-    }
-
-    /**
      * @see http://www.prefield.com/algorithm/string/knuth_morris_pratt.html
      */
     static int kmpSearch(String pat, String text) {
@@ -590,7 +597,6 @@ public class DataStructures {
                 st = trans[st];
             if (++st >= m) {  // 受理状態
                 // ここで何か処理する
-                // if (!pat.equals(text.substring(i - m + 1, i + 1))) throw new RuntimeException();
                 count++;
                 st = trans[st];
             }
@@ -615,7 +621,7 @@ public class DataStructures {
     }
 
     /**
-     * メモリ使用量が非常に多い。パターン文字数の総和が100000を超えるとまずい。
+     * メモリ使用量が非常に多い。パターン文字数の総和が100000を超えるとOutOfMemoryになる。
      * 手元で-Xmx256Mで400000文字まで大丈夫なのは確認したが…
      */
     static CharTrie ahoCorasickBuild(String[] pats) {
@@ -697,7 +703,7 @@ public class DataStructures {
         int n = s.length();  // 空文字を含むならここで+1
         SuffixArrayEntry[] sa = new SuffixArrayEntry[n];
         int[][] pos = new int[2][n];  // pos[t][i]: s.substr(i)の位置（ランク）
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++) {  // まず1文字だけでのランクを作成
             sa[i] = new SuffixArrayEntry();
             pos[0][i] = s.charAt(i);  // 空文字を含むならpos[0][n-1]=-1; とする
         }
@@ -709,6 +715,7 @@ public class DataStructures {
             }
             Arrays.sort(sa);
             if (step * 2 >= n) break;
+            // 今回のランクを更新
             for (int i = 0; i < n; i++) {
                 pos[t][sa[i].idx] = (i > 0 && sa[i].compareTo(sa[i - 1]) == 0)
                         ? pos[t][sa[i - 1].idx]
@@ -757,7 +764,7 @@ public class DataStructures {
             int logN = 32 - Integer.numberOfLeadingZeros(n - 1);
             sa = new SuffixArrayEntry[n];
             int[][] pos = new int[logN + 1][n];  // pos[t][i]: s.substr(i,i+2**t)の位置（ランク）
-            for (int i = 0; i < n; i++) {
+            for (int i = 0; i < n; i++) {  // まず1文字だけでのランクを作成
                 sa[i] = new SuffixArrayEntry();
                 pos[0][i] = s.charAt(i);
             }
@@ -768,6 +775,7 @@ public class DataStructures {
                     sa[i].pos = i + step < n ? pos[t - 1][i + step] : -1;  // 前回からstep文字だけ進んだ時の位置
                 }
                 Arrays.sort(sa);
+                // 今回のランクを更新
                 for (int i = 0; i < n; i++) {
                     pos[t][sa[i].idx] = (i > 0 && sa[i].compareTo(sa[i - 1]) == 0)
                             ? pos[t][sa[i - 1].idx]
@@ -801,8 +809,5 @@ public class DataStructures {
             int i = 31 - Integer.numberOfLeadingZeros(y - x);
             return Math.min(st[i][x], st[i][y - (1 << i)]);
         }
-    }
-
-    public static void main(String[] args) {
     }
 }

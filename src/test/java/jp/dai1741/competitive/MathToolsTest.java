@@ -7,11 +7,9 @@ import jp.dai1741.competitive.MathTools;
 
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.RandomAccess;
 import java.util.TreeMap;
 
 
@@ -141,7 +139,7 @@ public class MathToolsTest {
 
     @Test
     public void testMoebiusMap() {
-        TreeMap<Integer, Integer> map = getMoebiusMapOfFactorsOf(10080);
+        TreeMap<Integer, Integer> map = getMoebiusMapForFactorsOf(10080);
         for (int div : getDivisors(10080)) {
             boolean diviableSqr = div % 4 == 0 || div % 9 == 0 || div % 25 == 0
                     || div % 49 == 0;

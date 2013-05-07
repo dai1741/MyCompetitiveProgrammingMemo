@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.TreeMap;
 
 
+/**
+ * 数学関係のライブラリ。かなり分類が適当。
+ */
 public class MathTools {
 
     static int gcd(int a, int b) {
@@ -21,18 +24,18 @@ public class MathTools {
     }
 
     /**
-     * Solves ax+by=gcd(a,b).
+     * ax+by=gcd(a,b)を解く。
      * 
      * @param a
      * @param b
      * @param xy 出力用変数。元の内容は上書きされる。x=xy[0], y=xy[1]
      * @return gcd(a,b)
+     * @see プログラミングコンテストチャレンジブック 第1版 p.120
      */
     static int extgcd(int a, int b, int[] xy) {
-        //        assert a > 0 && b > 0 && (long) a * b <= Integer.MAX_VALUE && xy.length == 2;
+        assert a > 0 && b > 0 && xy.length == 2;
         int d = a;
         if (b != 0) {
-            // swap(xy, 0, 1);
             d = extgcd(b, a % b, xy);
             swap(xy, 0, 1);
             xy[1] -= a / b * xy[0];
@@ -70,10 +73,11 @@ public class MathTools {
     boolean[] isLargePrime;
 
     /**
-     * Makes prime table in range [a,b).
+     * [a,b)の範囲の素数表を作る
      * 
      * @param a
      * @param b
+     * @see プログラミングコンテストチャレンジブック 第1版 p.124
      */
     public void makeSegmentPrimesArray(long a, long b) {
         assert 2 <= a && a < b;
@@ -97,7 +101,7 @@ public class MathTools {
     }
 
     /**
-     * Tests primality in O(√n).
+     * 試しわりで素数判定を行う。O(√n).
      */
     static boolean isPrime(int n) {
         if (n == 2) return true;
@@ -109,7 +113,7 @@ public class MathTools {
     }
 
     /**
-     * Tests primality in O(log(n)).
+     * 前もって作成した素数配列を使って素数判定を行う。O(log(n))。
      */
     boolean isPrimeWithPrimeArray(int n) {
         assert numPrimes > 0 && Math.pow(isPrime.length - 1, 2) >= n;
@@ -122,9 +126,7 @@ public class MathTools {
     }
 
     /**
-     * Retrieves divisors of n.
-     * 
-     * @return unsorted divosors list
+     * @return ソートされていないnの約数のリスト
      */
     static ArrayList<Integer> getDivisors(int n) {
         ArrayList<Integer> divisors = new ArrayList<Integer>();
@@ -187,7 +189,7 @@ public class MathTools {
         return factors;
     }
 
-    static TreeMap<Integer, Integer> getMoebiusMapOfFactorsOf(int n) {
+    static TreeMap<Integer, Integer> getMoebiusMapForFactorsOf(int n) {
         List<Integer> factors = getPrimeFactorsIgnoringCount(n);
         TreeMap<Integer, Integer> moebius = new TreeMap<Integer, Integer>();
         int m = factors.size();
@@ -206,13 +208,14 @@ public class MathTools {
     }
 
     /**
-     * Solves Ax=b.
+     * Ax=b を解く。
      * 
      * @param a 行列A。内容は破壊されない
      * @param b ベクトルb。内容は破壊されない
      * @return Ax=bを満たすベクトルx
      * @throws IllegalArgumentException 行列とベクトルのサイズが一致しないとき
      * @throws ArithmeticException 解が存在しないか一意でないとき
+     * @see プログラミングコンテストチャレンジブック 第1版 p.238
      */
     static double[] solveLinearEquationsSystemWithGaussJordan(double[][] a, double[] b) {
         int n = a.length;
@@ -255,6 +258,9 @@ public class MathTools {
         return x;
     }
 
+    /**
+     * @return 行列とベクトルの積
+     */
     static double[] mul(double[][] mat, double[] v) {
         int n = mat.length;
         int m = mat[0].length;
@@ -268,9 +274,12 @@ public class MathTools {
         return ret;
     }
 
-    static double[][] mul(double[][] mat, double[][] mat2) {
-        int n = mat.length;
-        int m = mat[0].length;
+    /**
+     * @return 行列同士の積
+     */
+    static double[][] mul(double[][] mat1, double[][] mat2) {
+        int n = mat1.length;
+        int m = mat1[0].length;
         int l = mat2[0].length;
         assert m == mat2.length;
 
@@ -278,7 +287,7 @@ public class MathTools {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < l; j++) {
                 for (int k = 0; k < m; k++) {
-                    ret[i][j] += mat[i][k] * mat2[k][j];
+                    ret[i][j] += mat1[i][k] * mat2[k][j];
                 }
             }
         }
@@ -293,6 +302,11 @@ public class MathTools {
         return ret;
     }
 
+    /**
+     * @param n
+     * @return n未満のnと互いと素な数の個数φ(n)
+     * @see プログラミングコンテストチャレンジブック 第1版 p.242
+     */
     static int getEulerφ(int n) {
         int ret = n;
         for (int p : getPrimeFactorsIgnoringCount(n)) {
@@ -303,6 +317,10 @@ public class MathTools {
 
     int[] euler;
 
+    /**
+     * @param n
+     * @see プログラミングコンテストチャレンジブック 第1版 p.242
+     */
     void makeEulerφArray(int n) {
         euler = new int[n];
         for (int i = 0; i < n; i++) {
@@ -336,6 +354,9 @@ public class MathTools {
         return ret;
     }
 
+    /**
+     * 順列。SGIのnext_permutaionを参考に実装した。
+     */
     static class Permutations {
         final int[] data;
 
@@ -347,7 +368,7 @@ public class MathTools {
         }
 
         public Permutations(int[] data) {
-            this.data = data; // no defensive copy!
+            this.data = data;
         }
 
         boolean nextPermutaion() {

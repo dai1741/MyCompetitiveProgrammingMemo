@@ -91,8 +91,7 @@ public class Geometries2D {
     }
 
     static class Line {
-        Point a;
-        Point b;  // タイプ数減らすために書いてないが頂点たちはfinal
+        Point a, b;  // タイプ数減らすために書いてないが頂点たちはfinal
 
         // コンストラクタとequalsは自動生成でいい
         public Line(Point a, Point b) {
@@ -407,8 +406,6 @@ public class Geometries2D {
         // p = (a+b)/2 + km
         // と表せる。この2式を連立してkを求めれば求めるべき円が得られる。
 
-        // ……半径rを変数として求めたほうが楽かもしれない。
-
         Point n = l2.subtract(l1).multiply(new Point(0, 1));
         // Point abC = b.subtract(a).multiply(0.5);
         Point m = b.subtract(a).multiply(new Point(0, 0.5));
@@ -487,7 +484,9 @@ public class Geometries2D {
             while (k > lowerEnd && ccw(hull[k - 2], hull[k - 1], ps[i]) <= 0)
                 --k;  // ↑同一直線上の点を含まないなら「<= 0」に、含むなら「== -1」に 
         }
-        return Arrays.copyOf(hull, k - 1);  // 最後は重複しているので消す
+        Point[] ret = new Point[k - 1];
+        System.arraycopy(hull, 0, ret, 0, k - 1);  // 最後は重複しているので消す
+        return ret;  // Arrays.copyOf(hull, k - 1);
     }
 
     /**
@@ -903,12 +902,12 @@ public class Geometries2D {
 
     /* 幾何グラフ */
 
-    static class ListsGraph {
+    static class AdjGraph {
         final int n;
         ArrayList<Edge>[] edges;
 
         @SuppressWarnings("unchecked")
-        public ListsGraph(int n) {
+        public AdjGraph(int n) {
             this.n = n;
             edges = new ArrayList[n];
             for (int v = 0; v < n; v++) {
@@ -946,7 +945,7 @@ public class Geometries2D {
      * @return 線分アレンジメントのグラフ。推移的な辺は省略している。
      * @see http://www.prefield.com/algorithm/geometry/segment_arrangement.html
      */
-    static ListsGraph segmentArrangement(Line[] segs, List<Point> ps) {
+    static AdjGraph segmentArrangement(Line[] segs, List<Point> ps) {
         int n = segs.length;
         TreeSet<Point> set = new TreeSet<Point>();  // JavaのリストにはC++のuniqueがないので…
         for (int i = 0; i < n; i++) {
@@ -960,7 +959,7 @@ public class Geometries2D {
             }
         }
         ps.addAll(set);
-        ListsGraph g = new ListsGraph(ps.size());
+        AdjGraph g = new AdjGraph(ps.size());
 
         class CP implements Comparable<CP> {  // JAVAにpairはない!!!
             final int i;
@@ -1005,9 +1004,9 @@ public class Geometries2D {
      * @return 可視グラフ
      * @see http://www.prefield.com/algorithm/geometry/visibility_graph.html
      */
-    static ListsGraph visibilityGraph(Point[] ps, Point[][] objs) {
+    static AdjGraph visibilityGraph(Point[] ps, Point[][] objs) {
         int n = ps.length;
-        ListsGraph graph = new ListsGraph(n);
+        AdjGraph graph = new AdjGraph(n);
         for (int i = 0; i < n; i++) {
             mainLoop: for (int j = i + 1; j < n; j++) {
                 Point a = ps[i];

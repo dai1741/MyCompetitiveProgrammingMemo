@@ -7,7 +7,7 @@ import java.util.Comparator;
 /**
  * 以下が前提
  * - 右手系。右方向がx軸正、上方向がy軸正、手前方向がz軸正、角は左回りが正
- * - 全ての凸多角形は左回りに与えられる
+ * - 凸多角形は左回りに見える側が表面、右回りに見える側が裏面
  */
 public class Geometries3D {
 
@@ -417,10 +417,10 @@ public class Geometries3D {
             while (k > lowerEnd && ccw(hull[k - 2], hull[k - 1], ps[i], normal) <= 0)
                 --k;
         }
-        return Arrays.copyOf(hull, k - 1);  // 最後は重複しているので消す
+        Point[] ret = new Point[k - 1];
+        System.arraycopy(hull, 0, ret, 0, k - 1);  // 最後は重複しているので消す
+        return ret;
     }
-
-    // あれなんかおかしい、全部の凸平面の回転方向逆な気がしてきた
 
     /**
      * 面の法線ベクトルを得る。面は縮退がなく、無駄な点を含んでいないこと。
@@ -477,8 +477,7 @@ public class Geometries3D {
         for (int i = 0; i < face.length; i++) {
             a += n.dot(face[i].cross(face[(i + 1) % face.length]));
         }
-        return a / 2 / n.distance();
-        // nを単位ベクトルだったことにするため長さで割る（後から割った方が誤差的に良い）
+        return a / 2 / n.distance();  // nを単位ベクトルだったことにするため長さで割る
     }
 
     /**

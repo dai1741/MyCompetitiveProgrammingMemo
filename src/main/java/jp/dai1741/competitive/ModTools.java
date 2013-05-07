@@ -2,6 +2,9 @@ package jp.dai1741.competitive;
 
 import static jp.dai1741.competitive.MathTools.*;
 
+/**
+ * 乗除関係のライブラリ
+ */
 public class ModTools {
 
     /**
@@ -110,7 +113,7 @@ public class ModTools {
 
     /**
      * @return x^n (mod mod)
-     * @see プログラミングコンテストチャレンジブック p.125
+     * @see プログラミングコンテストチャレンジブック 第1版 p.125
      */
     static long pow(long x, long n, long mod) {
         long ret = 1;
@@ -124,7 +127,7 @@ public class ModTools {
 
     /**
      * @return x^n (mod mod)
-     * @see プログラミングコンテストチャレンジブック p.180
+     * @see プログラミングコンテストチャレンジブック 第1版 p.180
      */
     static long[][] pow(long[][] x, long n, long mod) {
         long[][] ret = makeIndentityMatrixLong(x.length);
@@ -139,7 +142,7 @@ public class ModTools {
     /**
      * @throws ArithmeticException gcd(a, mod)≠1のとき
      * @return integer x s.t. ax=1 (mod mod)
-     * @see プログラミングコンテストチャレンジブック p.242
+     * @see プログラミングコンテストチャレンジブック 第1版 p.242
      */
     static int modInverse(int a, int mod) {
         int[] xy = new int[2];
@@ -176,7 +179,7 @@ public class ModTools {
      * @param mods m_i
      * @return x=ret[0], m=ret[1]
      * @throws ArithmeticException 解が存在しないとき
-     * @see プログラミングコンテストチャレンジブック p.243
+     * @see プログラミングコンテストチャレンジブック 第1版 p.243
      */
     static int[] solveLinearCongruence(int[] a, int[] b, int[] mods) {
         int x = 0;
@@ -208,14 +211,14 @@ public class ModTools {
     }
 
     /**
-     * n!/(p^e)=a (mod p) を満たす最大のeと0でないaを求める。
+     * n!=a*p^e を満たす最大のeと0でないaを求める。
      * 
      * @param n
      * @param p 素数
-     * @param e
+     * @param e 出力変数
      * @param factory
-     * @return a s.t. 0 &lt; a &lt; p
-     * @see プログラミングコンテストチャレンジブック p.244
+     * @return a in (0,p)
+     * @see プログラミングコンテストチャレンジブック 第1版 p.244
      */
     static long modFact(long n, int p, int[] e, FactorialFactory factory) {
         e[0] = 0;
@@ -232,7 +235,7 @@ public class ModTools {
      * @param p 素数
      * @param factory
      * @return nCk mod p
-     * @see プログラミングコンテストチャレンジブック p.245
+     * @see プログラミングコンテストチャレンジブック 第1版 p.245
      * @see MathTools#comb(long, long, long)
      */
     static long modComb(long n, long k, int p, FactorialFactory factory) {
@@ -244,7 +247,7 @@ public class ModTools {
         long a2 = modFact(k, p, e2, factory);
         long a3 = modFact(n - k, p, e3, factory);
         if (e1[0] > e2[0] + e3[0]) {
-            // この式が常に成立しないならmodInverseで直接combを計算することもできる
+            // この条件が常に成立しない（常にn<pである）ならmodInverseで直接combを計算することもできる
             return 0;
         }
         return a1 * modInverse((int) (a2 * a3 % p), p) % p;
@@ -260,7 +263,7 @@ public class ModTools {
      * @see http://d.hatena.ne.jp/kadzus/20081211/1229023326
      * @see ModTools#modComb(int, int, int, ModTools.FactorialFactory)
      */
-    long modComb(long n, long kOrg, long mod) {
+    static long modComb(long n, long kOrg, long mod) {
         int k = (int) Math.min(kOrg, n - kOrg);
         if (k < 0) return 0;
         long[] bunsi = new long[k];
@@ -273,7 +276,7 @@ public class ModTools {
         for (int i = 2; i <= k; i++) {
             int pivot = bunbo[i - 1];
             if (pivot == 1) continue;
-            int offset = (int) ((n - k) % i);
+            int offset = (int) ((n - k) % i);  // 割り切れる最初の位置
             for (int j = i - 1; j < k; j += i) {
                 bunsi[j - offset] /= pivot;
                 bunbo[j] /= pivot;

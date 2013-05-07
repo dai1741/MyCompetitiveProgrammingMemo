@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import jp.dai1741.competitive.Geometries2D;
 import jp.dai1741.competitive.Geometries2D.Edge;
-import jp.dai1741.competitive.Geometries2D.ListsGraph;
+import jp.dai1741.competitive.Geometries2D.AdjGraph;
 import jp.dai1741.competitive.Geometries2D.Point;
 
 import org.junit.Test;
@@ -59,7 +59,7 @@ public class Geometries2DTest {
         return Arrays.copyOf(points, i);
     }
 
-    @Test(timeout = 2000)
+    @Test
     public void testPoint() {
         Point p = p(4, 6.6);
         assertEquals(4, p.x, EPS);
@@ -89,7 +89,7 @@ public class Geometries2DTest {
         assertEquals(-1879.2043819273863892, rnd2.cross(rnd1), EPS);
     }
 
-    @Test(timeout = 2000)
+    @Test
     public void testLineDirections() {
         Point p = p(46.529, 8.193);
         Point dir = p(58.2, -4.5);
@@ -170,7 +170,7 @@ public class Geometries2DTest {
         crosspointLL(b1, b2, bp1.add(oneP), bp2.add(oneP));
     }
 
-    @Test(timeout = 2000)
+    @Test
     public void testDistances() {
         Point a1 = p(0, 0);
         Point a2 = p(1, 2);
@@ -297,7 +297,7 @@ public class Geometries2DTest {
                 incenter(a2, b, p(2, -0.5)));
     }
 
-    @Test(timeout = 2000)
+    @Test
     public void testTangentLines() {
         Line[][] tangents = tangentLines(zeroP, 1, oneP, 1);
         assertArrayEquals(new Line[][] {
@@ -374,7 +374,7 @@ public class Geometries2DTest {
         assertArrayEquals(new Line[][] { null, null }, tangents);
     }
 
-    @Test(timeout = 2000)
+    @Test
     public void testCirclesThru2PointsWithRadius() {
         Point[] centers = circlesThru2PointsWithRadius(zeroP, p(0, 1), 5);
         assertEquals(2, centers.length);
@@ -396,7 +396,7 @@ public class Geometries2DTest {
         assertEquals(0, centers.length);
     }
 
-    @Test(timeout = 2000)
+    @Test
     public void testCirclesThru2PointsWithTangent() {
         Point[] centers = circlesThru2PointsWithTangent(zeroP, p(0, 1), p(0, 2), p(1, 3));
         circlesThru2PointsWithTangent(p(1, -1), p(1, 1), p(-1, 20), p(1, 30));
@@ -424,7 +424,7 @@ public class Geometries2DTest {
         }
     }
 
-    @Test(timeout = 2000)
+    @Test
     public void testMinEnclosingCircle() {
         assertEquals(p(0.5, 1),
                 minEnclosingCircle(new Point[] { zeroP, p(1, 2), p(0, 1) }));
@@ -441,7 +441,7 @@ public class Geometries2DTest {
         assertEquals(p(39, 19.5), minEnclosingCircle(manyPoints));
     }
 
-    @Test(timeout = 2000)
+    @Test
     public void testIsConvex() {
         Point[] points = makePoints("0 0  4 5  6 5  9 3  10 4  12 -1  7 -4  4 0  3 -2  -1 1  8 2  -1 -1");
         assertFalse(isConvex(points));
@@ -460,7 +460,7 @@ public class Geometries2DTest {
         assertFalse(isCcwConvex(points));
     }
 
-    @Test(timeout = 2000)
+    @Test
     public void testIsInPolygons() {
         Point[] points = aConvex;
         Point[][] checkeds = new Point[][] {
@@ -496,7 +496,7 @@ public class Geometries2DTest {
         }
     }
 
-    @Test(timeout = 2000)
+    @Test
     public void testConvexHull() {
         checkConvexHull(makePoints("0 0  4 5  6 5  9 3  10 4  12 -1  7 -4  4 0  3 -2  -1 1  8 2  -1 -1"));
         checkConvexHull(makePoints("43.459 40.119  28.740 5.437  -1.038 -3.614  -28.130 -34.897  -13.785 -31.319  -48.709 1.616  9.819 4.463  -45.839 -21.446  -14.079 30.034  -32.017 -45.677"));
@@ -514,7 +514,7 @@ public class Geometries2DTest {
         }
     }
 
-    @Test(timeout = 2000)
+    @Test
     public void testConvexIntersection() {
         Point[] points = aConvex;
 
@@ -584,7 +584,7 @@ public class Geometries2DTest {
         }
     }
 
-    @Test(timeout = 2000)
+    @Test
     public void testConvexCut() {
         Point[] points = aConvex;
         assertEquals(
@@ -612,7 +612,7 @@ public class Geometries2DTest {
         // convexCut(makePoints("0 0  1 0  2 0"), p(1.5, -1), p(1.5, 1)));
     }
 
-    @Test(timeout = 2000)
+    @Test
     public void testConvexDiameter() {
         Point[] points = aConvex;
         assertArrayEqualsSorted(new int[] { 2, 6 }, convexDiameter(aConvex));
@@ -633,7 +633,7 @@ public class Geometries2DTest {
         assertArrayEqualsSorted(new int[] { 1, 4 }, convexDiameter(points));
     }
 
-    @Test(timeout = 2000)
+    @Test
     public void testArea() {
         Point[] points = aConvex;
         assertEquals(78.5, area(points), EPS);
@@ -654,7 +654,7 @@ public class Geometries2DTest {
         assertEquals(0, area(points), EPS);
     }
 
-    @Test(timeout = 2000)
+    @Test
     public void testCentroid() {
         Point[] points = aConvex;
         assertEquals(p(1330.0 / 3 / 78.5, 151.0 / 3 / 78.5), centroid(points));
@@ -669,7 +669,7 @@ public class Geometries2DTest {
         assertEquals(p(13597.0 / 6 / 182.5, 1553.0 / 182.5), centroid(points));
     }
 
-    @Test(timeout = 2000)
+    @Test
     public void testVoronoiCell() {
         assertArrayEquals(new Point[] {
                 p(-10, -10), p(0.1875, -10), p(55.0 / 14, -1.0 / 42), p(3.9, 0),
@@ -678,7 +678,7 @@ public class Geometries2DTest {
         // TODO: test more
     }
 
-    private void assertHasEdge(ListsGraph g, Edge actual) {
+    private void assertHasEdge(AdjGraph g, Edge actual) {
         for (Edge edge : g.edges[actual.from]) {
             if (actual.to == edge.to) {
                 assertEquals(actual.cost, actual.cost, EPS);
@@ -688,19 +688,19 @@ public class Geometries2DTest {
         fail("Expected edge not found: " + actual);
     }
 
-    private void assertHasNoEdge(ListsGraph g, int from, int to) {
+    private void assertHasNoEdge(AdjGraph g, int from, int to) {
         for (Edge edge : g.edges[from]) {
             assertFalse(to + ", " + from, to == edge.to);
         }
     }
 
-    @Test(timeout = 2000)
+    @Test
     public void testSegmentArrangement() {
         Line[] segs = {
                 l(zeroP, oneP), l(p(0, 1), p(1, 0)), l(p(1, 0), p(3, 0)),
                 l(p(2, 2), p(5, 1)), l(p(3, 0), p(4, 5)), };
         ArrayList<Point> psMap = new ArrayList<Geometries2D.Point>();
-        ListsGraph g = segmentArrangement(segs, psMap);
+        AdjGraph g = segmentArrangement(segs, psMap);
 
         assertTrue(psMap.contains(p(0.5, 0.5)));
         assertTrue(psMap.contains(p(53.0 / 16, 25.0 / 16)));
@@ -727,14 +727,14 @@ public class Geometries2DTest {
         }
     }
 
-    @Test(timeout = 2000)
+    @Test
     public void testVisibilityGraph() {
         Point[] ps = Arrays.copyOf(aConvex, aConvex.length + 3);
         ps[ps.length - 3] = p(-4, -2);
         ps[ps.length - 2] = p(5, 7);
         ps[ps.length - 1] = p(11, 6);
 //        System.out.println(Arrays.toString(ps));
-        ListsGraph g = visibilityGraph(ps, new Point[][] { aConvex });
+        AdjGraph g = visibilityGraph(ps, new Point[][] { aConvex });
         //        for (ArrayList<Edge> edges : g.edges) {
         //            System.out.println(edges);
         //        }
@@ -789,7 +789,7 @@ public class Geometries2DTest {
         }
     }
 
-    @Test(timeout = 2000)
+    @Test
     public void testMergeSegments() {
         Line[] segs = {
                 l(p(0, 0), p(3, 3)), l(p(4, 4), p(2, 2)), l(p(5, 5), p(8, 8)),

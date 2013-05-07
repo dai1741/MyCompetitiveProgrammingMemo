@@ -79,16 +79,6 @@ public class ModToolsTest {
         long[][] fibonnaciPow = pow(fibonacci, 100000000, 100000);
         assertEquals(46875, fibonnaciPow[1][0]);
         assertEquals(37501, fibonnaciPow[0][0]);
-        // long[][] a = { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 } };
-        // long[][] expected = new long[][] {
-        // {},
-        // {},
-        // {},
-        // };
-        // System.out.println(Arrays.deepToString(pow(a, 1000000, 100007)));
-        // assertArrayEquals(expected, pow(a, 1000000, 100007));
-        // data ga nai ;_;
-        System.out.println(new BigInteger("1758412232636122750").mod(BigInteger.ONE.shiftLeft(64)).toString(4));
     }
 
     @Test
@@ -142,9 +132,6 @@ public class ModToolsTest {
         assertEquals(3, e[0]);
         assertEquals(1, modFact(0, 157, e, factory));
         assertEquals(0, e[0]);
-        // assertEquals(27, modFact(10000000, 157, e, factory));
-        // assertEquals(64101, e[0]);
-        // data ga nai ;_;
     }
 
     @Test
@@ -168,6 +155,12 @@ public class ModToolsTest {
         assertEquals(0, modComb(349, 52, 157, factory));
         assertEquals(0, modComb(349, 135, 157, factory));
         assertEquals(59, modComb(349, 160, 157, factory));
+        
+        assertEquals(210, modComb(10, 4, BASIC_MOD));
+        assertEquals(306934928, modComb(800, 321, BASIC_MOD));
+        
+        assertEquals(0, modComb(349, 135, 157));
+        assertEquals(59, modComb(349, 160, 157));
     }
 
 }
