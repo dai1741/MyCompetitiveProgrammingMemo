@@ -33,7 +33,7 @@ public class MathTools {
      * @see プログラミングコンテストチャレンジブック 第1版 p.120
      */
     static int extgcd(int a, int b, int[] xy) {
-        assert a > 0 && b > 0 && xy.length == 2;
+        assert a >= 0 && b >= 0 && xy.length == 2;
         int d = a;
         if (b != 0) {
             d = extgcd(b, a % b, xy);
