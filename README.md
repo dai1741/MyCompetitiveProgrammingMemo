@@ -1,4 +1,4 @@
-MyCompetitiveProgrammingMemo
+MyCompetitiveProgrammingMemo [![Build Status](https://travis-ci.org/dai1741/MyCompetitiveProgrammingMemo.png?branch=master)](https://travis-ci.org/dai1741/MyCompetitiveProgrammingMemo)
 ============================
 
 競技プログラミングで使用する基礎的なアルゴリズムのJava実装など。
